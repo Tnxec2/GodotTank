@@ -2,22 +2,25 @@
 
 [ext_resource path="res://bullets/PlayerCannone.gd" type="Script" id=1]
 [ext_resource path="res://bullets/Bullet.tscn" type="PackedScene" id=2]
-[ext_resource path="res://assets/textures/bullets.png" type="Texture" id=3]
+[ext_resource path="res://assets/actors/cannon.png" type="Texture" id=3]
 
-[sub_resource type="CircleShape2D" id=1]
-radius = 2.0
+[sub_resource type="RectangleShape2D" id=1]
+extents = Vector2( 5.5, 2.5 )
 
 [node name="PlayerCannone" instance=ExtResource( 2 )]
 collision_layer = 8
 collision_mask = 253
 script = ExtResource( 1 )
-speed = 200
+speed = 400
 damage = 10
 
 [node name="Sprite" parent="." index="0"]
 texture = ExtResource( 3 )
-region_enabled = true
-region_rect = Rect2( 4, 0, 6, 5 )
 
 [node name="CollisionShape2D" parent="." index="1"]
+position = Vector2( 0.5, -0.5 )
 shape = SubResource( 1 )
+
+[node name="Explosion" parent="." index="3"]
+visible = true
+scale = Vector2( 0.3, 0.3 )

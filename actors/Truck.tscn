@@ -2,10 +2,10 @@
 
 [ext_resource path="res://actors/Truck.gd" type="Script" id=1]
 [ext_resource path="res://animation/explosion.tres" type="SpriteFrames" id=2]
-[ext_resource path="res://assets/textures/truck.png" type="Texture" id=3]
+[ext_resource path="res://assets/actors/truck.png" type="Texture" id=3]
 
-[sub_resource type="CircleShape2D" id=1]
-radius = 6.5
+[sub_resource type="RectangleShape2D" id=1]
+extents = Vector2( 40.5, 16 )
 
 [node name="Truck" type="KinematicBody2D" groups=["trucks"]]
 collision_layer = 32
@@ -17,6 +17,7 @@ script = ExtResource( 1 )
 texture = ExtResource( 3 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2( -0.5, 0 )
 shape = SubResource( 1 )
 
 [node name="Explosion" type="AnimatedSprite" parent="."]
@@ -24,6 +25,14 @@ visible = false
 frames = ExtResource( 2 )
 
 [node name="StuckTimer" type="Timer" parent="."]
+autostart = true
+
+[node name="HealthBar" type="ColorRect" parent="."]
+margin_left = -25.0
+margin_top = -30.0
+margin_right = 25.0
+margin_bottom = -28.0
+color = Color( 0, 0.227451, 1, 1 )
 
 [connection signal="input_event" from="." to="." method="_on_Truck_input_event"]
 [connection signal="animation_finished" from="Explosion" to="." method="_on_Explosion_animation_finished"]

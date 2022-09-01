@@ -1,10 +1,10 @@
-extends VBoxContainer
-
+extends Control
 
 signal shot_pressed()
 signal cannon_pressed()
 signal missile_pressed()
 signal bomb_pressed()
+signal pause_pressed()
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -21,3 +21,6 @@ func _on_Missile_pressed():
 
 func _on_Bomb_pressed():
 	emit_signal("bomb_pressed")
+
+func _on_MiniMap_pressed() -> void:
+	emit_signal("pause_pressed")

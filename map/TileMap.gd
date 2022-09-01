@@ -1,7 +1,7 @@
 extends TileMap
 
-var map_sizes = [40, 80, 120]
-var map_size = 40
+var map_sizes = [80, 120, 160]
+var map_size = map_sizes[0]
 
 var rand = RandomNumberGenerator.new()
 
@@ -18,15 +18,15 @@ func fill_map_with_tilles():
 	for n in map_size:
 		for m in map_size:
 			var type = 0
-			var r = rand.randi_range(0, 100)
-			if ( r < 98):
-				type = 0 # Empty
-			elif (r < 99.5):
-				type = 1 # Grass
-			elif (r < 99.7):
-				type = 2 # Hill1
-			else:
-				type = 3 # Hill2
+#			var r = rand.randi_range(0, 100)
+#			if ( r < 98):
+#				type = 0 # Empty
+#			elif (r < 99.5):
+#				type = 1 # Grass
+#			elif (r < 99.7):
+#				type = 2 # Hill1
+#			else:
+#				type = 3 # Hill2
 			set_cell(n, m, type)
 
 

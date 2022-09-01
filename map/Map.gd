@@ -8,7 +8,8 @@ var enemy_tank = preload("res://actors/EnemyTank.tscn")
 var truck = preload("res://actors/Truck.tscn")
 var tree = preload("res://staticobjects/Tree.tscn")
 var hill = preload("res://staticobjects/Hill.tscn")
-var fort = preload("res://staticobjects/Fort.tscn")
+var rocks = preload("res://staticobjects/Rocks.tscn")
+var fort = preload("res://staticobjects/Fort/Fort.tscn")
 var radar = preload("res://staticobjects/Radar.tscn")
 var helli = preload("res://actors/Helli.tscn")
 var plane = preload("res://actors/Helli.tscn") # TODO: plane
@@ -21,8 +22,13 @@ var bomb = preload("res://pickups/Bomb.tscn")
 const pickup_types = preload("res://pickups/PickupTypes.gd")
 
 onready var ground = $Ground
-onready var player = $Player
-onready var camera = $Player/Camera2D
+onready var player = $YSort/Player
+onready var camera = $YSort/Player/Camera2D
+
+onready var sound_gameover = $Sounds/GameOverSound
+onready var sound_win = $Sounds/WinSound
+
+onready var ysort = $YSort
 
 const TILE_SIZE = 16
 const HALF_TILE_SIZE = 8
@@ -36,13 +42,10 @@ var limits = [0, 0, 0, 0] # left, right, top, bottom
 
 
 var count_enemys = 0
-var game_over = false
 
 var current_bullet_type = 0 # 0 - Shots, 1 - Cannone, 2 - Missile
 
 var rand = RandomNumberGenerator.new()
-
-var last_clicked_body = null
 
 var flag_count = 1
 var fort_areas = [] # Rect2 Array, containt areas of all forts
@@ -51,6 +54,8 @@ var player_located = false
 
 
 func _ready():
+	G.game_over = false
+	G.win = false
 	rand.randomize()
 	get_map_size()
 	set_camera_limits()
@@ -68,14 +73,6 @@ func _ready():
 	emit_signal("change_count_enemys", count_enemys)
 	emit_signal("change_bullet_type", current_bullet_type)
 	G.player = player
-
-
-func _process(delta):
-	if last_clicked_body && is_instance_valid(last_clicked_body):
-		$MissileAim.global_position = last_clicked_body.position
-		$MissileAim.show()
-	else:
-		$MissileAim.hide()
 
 
 func get_map_size():
@@ -110,7 +107,7 @@ func rand_player_position():
 
 
 func spawn_hills():
-	var hill_amount = G.map_size.x * G.map_size.y / 50000
+	var hill_amount = G.map_size.x * G.map_size.y / 100000
 	for i in range(0, hill_amount):
 		var x = rand.randf_range(10,G.map_size.x-10)
 		var y = rand.randf_range(10,G.map_size.y-10)
@@ -122,7 +119,7 @@ func spawn_hills():
 			var h = hill.instance()
 			h.position = Vector2(x, y)
 			h.connect("clicked", self, "_on_Body_clicked", [h])
-			add_child(h)
+			ysort.add_child(h)
 
 
 func spawn_trees():
@@ -140,7 +137,7 @@ func spawn_trees():
 			var h = tree.instance()
 			h.position = Vector2(x, y)
 			h.connect("clicked", self, "_on_Body_clicked", [h])
-			add_child(h)
+			ysort.add_child(h)
 
 
 func spawn_enemys():
@@ -162,11 +159,11 @@ func respawn_enemy():
 				collides = true
 	
 	enemy.limits = limits
-	enemy.connect("dead", self, "_on_EnemyTank_dead")
+	enemy.connect("dead", self, "_on_EnemyTank_dead", [enemy])
 	enemy.connect("shoot", self, "_on_Enemy_shoot")
 	enemy.connect("clicked", self, "_on_Body_clicked", [enemy])
 	enemy.set_player(player)
-	add_child(enemy)
+	ysort.add_child(enemy)
 	count_enemys += 1
 
 
@@ -175,11 +172,11 @@ func spawn_truck():
 	tr.limits = limits
 	tr.connect("drop_object", self, "_on_Truck_drop_object")
 	tr.connect("clicked", self, "_on_Body_clicked", [tr])
-	add_child(tr)
+	ysort.add_child(tr)
 
 
 func spawn_forts():
-	var count_forts = 1
+	var count_forts = G.world_size + 1
 	for i in count_forts:
 		spawn_fort()
 	flag_count = fort_areas.size()
@@ -187,18 +184,27 @@ func spawn_forts():
 
 func spawn_fort():
 	var f = fort.instance()
-	var x = rand.randf_range(10,G.map_size.x-10-64)
-	var y = rand.randf_range(10,G.map_size.y-10-48)
-	f.position = Vector2(x, y)
+	
+	var collides = true
+	var fort_half_size = f.size/2
+	while collides:
+		var x = rand.randf_range(10,G.map_size.x-10-f.size.x)
+		var y = rand.randf_range(10,G.map_size.y-10-f.size.y)
+		f.position = Vector2(x, y)
+		collides = false
+		for r in fort_areas:
+			if r.intersects(Rect2(x-fort_half_size.x,y-fort_half_size.y,x+fort_half_size.x,y+fort_half_size.y), true):
+				collides = true
+	
 	f.init(player)
 	f.connect("shoot", self, "_on_FortTower_shoot")
-	add_child(f)
-	fort_areas.append(Rect2(f.position, Vector2(64, 48)))
+	f.connect("clicked", self, "_on_Body_clicked")
+	ysort.add_child(f)
+	fort_areas.append(Rect2(f.position, f.size))
 
 
 func spawn_radars():
-	var count_radars = floor(G.map_size.x * G.map_size.y / 400000)
-	prints("count_radars", count_radars)
+	var count_radars = floor(G.map_size.x * G.map_size.y / 800000)
 	for i in count_radars:
 		spawn_radar()
 
@@ -216,8 +222,9 @@ func spawn_radar():
 				collides = true
 	
 	rad.connect("locate_player", self, "_on_Radar_locate_player")
+	rad.connect("clicked", self, "_on_Body_clicked", [rad])
 	rad.set_player(player)
-	add_child(rad)
+	ysort.add_child(rad)
 
 
 func spawn_helli():
@@ -236,14 +243,28 @@ func spawn_plane():
 	h.connect("shoot", self, "_on_Enemy_shoot")
 	h.connect("clicked", self, "_on_Body_clicked", [h])
 	add_child(h)
-	
 
-func _unhandled_input(event):
-	if game_over:
+
+func game_over(win: bool):
+	if G.game_over:
+		return
+	G.game_over = true
+	G.win = win
+	if !win:
+		sound_gameover.play()
+	else:
+		sound_win.play()
+	yield(get_tree().create_timer(3.0), "timeout")
+
+	emit_signal("game_over", win)
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if G.game_over:
 		return
 	# Mouse in viewport coordinates.
 	if event is InputEventMouseButton:
-		# print("Mouse Click/Unclick at: ", event.position)
+		print("Mouse Click/Unclick at: ", event.position)
 		if event.is_pressed():
 			swipe_position_init = get_global_mouse_position() # get initial position
 		else:
@@ -252,10 +273,8 @@ func _unhandled_input(event):
 				swipe_movement_vector = (swipe_position_release - swipe_position_init).normalized()  # obtain the movement vector
 				player.drive_to(swipe_movement_vector)
 			else:
-				player.shot_to(swipe_position_release, current_bullet_type, last_clicked_body)
-				last_clicked_body = null
-				$MissileAim.hide()
-				# emit_signal("clicked", swipe_position_release, current_bullet_type)
+				if current_bullet_type != 2: # not missile
+					player.shot_to(swipe_position_release, current_bullet_type, null)
 	elif event is InputEventMouseMotion:
 		#print("Mouse Motion at: ", event.position)
 		pass
@@ -263,16 +282,9 @@ func _unhandled_input(event):
 	#print("Viewport Resolution is: ", get_viewport_rect().size
 
 
-func game_over(win: bool):
-	game_over = true
-	$GameOver.play()
-	yield(get_tree().create_timer(3.0), "timeout")
-	emit_signal("game_over", win)
-
-
 func _on_Body_clicked(body):
-	if !game_over:
-		last_clicked_body = body
+	if current_bullet_type == 2:
+		player.shot_to(body.global_position, current_bullet_type, body)
 
 
 func _on_Truck_drop_object(type, pickup_amount, position):
@@ -297,14 +309,14 @@ func _on_Truck_drop_object(type, pickup_amount, position):
 	pickup.type = type
 	pickup.amount = pickup_amount
 	pickup.add_to_group('pickups')
-	add_child(pickup)
+	ysort.add_child(pickup)
 
 
-func _on_EnemyTank_dead():
+func _on_EnemyTank_dead(body):
 	count_enemys -= 1
 	emit_signal("change_count_enemys", count_enemys)
-	
-	
+
+
 func _on_Enemy_shoot(bullet, _position, _direction, _target=null):
 	var b = bullet.instance()
 	add_child(b)
@@ -318,12 +330,12 @@ func _on_FortTower_shoot(bullet, _position, _direction):
 
 
 func _on_HUD_bomb_pressed():
-	if !game_over:
+	if !G.game_over:
 		player.setBomb()
 
 
 func _on_HUD_cannon_pressed():
-	if !game_over:
+	if !G.game_over:
 		if player.cannone_count > 0:
 			current_bullet_type = 1
 		else:
@@ -332,13 +344,13 @@ func _on_HUD_cannon_pressed():
 
 
 func _on_HUD_shot_pressed():
-	if !game_over:
+	if !G.game_over:
 		current_bullet_type = 0
 		emit_signal("change_bullet_type", current_bullet_type)
 
 
 func _on_HUD_missile_pressed():
-	if !game_over:
+	if !G.game_over:
 		if player.missile_count > 0:
 			current_bullet_type = 2
 		else:

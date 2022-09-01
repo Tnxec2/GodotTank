@@ -1,16 +1,73 @@
-[gd_scene load_steps=8 format=2]
+[gd_scene load_steps=22 format=2]
 
 [ext_resource path="res://actors/Tank.tscn" type="PackedScene" id=1]
-[ext_resource path="res://assets/textures/enemy_body.png" type="Texture" id=2]
-[ext_resource path="res://assets/textures/enemy_turret.png" type="Texture" id=3]
+[ext_resource path="res://assets/actors/enemyTankTurret.png" type="Texture" id=2]
+[ext_resource path="res://assets/actors/enemyTankBase.png" type="Texture" id=3]
 [ext_resource path="res://actors/EnemyTank.gd" type="Script" id=4]
 [ext_resource path="res://bullets/EnemyTankBullet.tscn" type="PackedScene" id=5]
+[ext_resource path="res://assets/actors/explosion.png" type="Texture" id=6]
 
 [sub_resource type="CircleShape2D" id=1]
-radius = 7.07107
+radius = 24.0208
 
-[sub_resource type="CircleShape2D" id=2]
-radius = 100.0
+[sub_resource type="AtlasTexture" id=13]
+atlas = ExtResource( 6 )
+region = Rect2( 0, 0, 96, 96 )
+
+[sub_resource type="AtlasTexture" id=2]
+atlas = ExtResource( 6 )
+region = Rect2( 96, 0, 96, 96 )
+
+[sub_resource type="AtlasTexture" id=3]
+atlas = ExtResource( 6 )
+region = Rect2( 192, 0, 96, 96 )
+
+[sub_resource type="AtlasTexture" id=4]
+atlas = ExtResource( 6 )
+region = Rect2( 288, 0, 96, 96 )
+
+[sub_resource type="AtlasTexture" id=5]
+atlas = ExtResource( 6 )
+region = Rect2( 384, 0, 96, 96 )
+
+[sub_resource type="AtlasTexture" id=6]
+atlas = ExtResource( 6 )
+region = Rect2( 480, 0, 96, 96 )
+
+[sub_resource type="AtlasTexture" id=7]
+atlas = ExtResource( 6 )
+region = Rect2( 576, 0, 96, 96 )
+
+[sub_resource type="AtlasTexture" id=8]
+atlas = ExtResource( 6 )
+region = Rect2( 672, 0, 96, 96 )
+
+[sub_resource type="AtlasTexture" id=9]
+atlas = ExtResource( 6 )
+region = Rect2( 768, 0, 96, 96 )
+
+[sub_resource type="AtlasTexture" id=10]
+atlas = ExtResource( 6 )
+region = Rect2( 864, 0, 96, 96 )
+
+[sub_resource type="AtlasTexture" id=11]
+atlas = ExtResource( 6 )
+region = Rect2( 960, 0, 96, 96 )
+
+[sub_resource type="AtlasTexture" id=12]
+atlas = ExtResource( 6 )
+region = Rect2( 1056, 0, 96, 96 )
+
+[sub_resource type="SpriteFrames" id=14]
+animations = [ {
+"frames": [ SubResource( 13 ), SubResource( 2 ), SubResource( 3 ), SubResource( 4 ), SubResource( 5 ), SubResource( 6 ), SubResource( 7 ), SubResource( 8 ), SubResource( 9 ), SubResource( 10 ), SubResource( 11 ), SubResource( 12 ) ],
+"loop": true,
+"name": "default",
+"speed": 5.0
+} ]
+
+[sub_resource type="CircleShape2D" id=15]
+radius = 200.0
 
 [node name="EnemyTank" instance=ExtResource( 1 )]
 collision_layer = 4
@@ -18,33 +75,46 @@ collision_mask = 247
 input_pickable = true
 script = ExtResource( 4 )
 Bullet = ExtResource( 5 )
-speed = 30
+speed = 60
 gun_cooldown = 0.5
 max_health = 50
 turret_speed = 1.0
-detect_radius = 100
+detect_radius = 200
 
 [node name="Body" parent="." index="0"]
-texture = ExtResource( 2 )
+texture = ExtResource( 3 )
+hframes = 3
 
 [node name="CollisionShape2D" parent="." index="1"]
 shape = SubResource( 1 )
 
 [node name="Turret" parent="." index="3"]
-texture = ExtResource( 3 )
+texture = ExtResource( 2 )
 
 [node name="Muzzle" parent="Turret" index="0"]
-position = Vector2( 8, 0 )
+position = Vector2( 24, 0 )
+
+[node name="Explosion" parent="." index="4"]
+frames = SubResource( 14 )
+frame = 6
 
 [node name="DetectRadius" type="Area2D" parent="." index="5"]
+visible = false
 collision_layer = 0
 collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="DetectRadius" index="0"]
-shape = SubResource( 2 )
+shape = SubResource( 15 )
 
 [node name="StuckTimer" type="Timer" parent="." index="6"]
 autostart = true
+
+[node name="HealthBar" type="ColorRect" parent="." index="8"]
+margin_left = -25.0
+margin_top = -30.0
+margin_right = 25.0
+margin_bottom = -28.0
+color = Color( 0, 0.321569, 1, 1 )
 
 [connection signal="input_event" from="." to="." method="_on_EnemyTank_input_event"]
 [connection signal="body_entered" from="DetectRadius" to="." method="_on_DetectRadius_body_entered"]

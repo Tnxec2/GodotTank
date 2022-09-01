@@ -1,46 +1,40 @@
-[gd_scene load_steps=11 format=2]
+[gd_scene load_steps=9 format=2]
 
 [ext_resource path="res://animation/explosion.tres" type="SpriteFrames" id=1]
-[ext_resource path="res://assets/textures/heli_rotor.png" type="Texture" id=2]
+[ext_resource path="res://assets/actors/helicopter-body.png" type="Texture" id=2]
 [ext_resource path="res://actors/Helli.gd" type="Script" id=3]
-[ext_resource path="res://assets/textures/heli.png" type="Texture" id=4]
+[ext_resource path="res://assets/actors/helicopter-rotor.png" type="Texture" id=4]
 
-[sub_resource type="CircleShape2D" id=1]
-radius = 8.0
+[sub_resource type="CapsuleShape2D" id=7]
+height = 78.0
 
-[sub_resource type="AtlasTexture" id=2]
-atlas = ExtResource( 2 )
-region = Rect2( 0, 0, 16, 16 )
-
-[sub_resource type="AtlasTexture" id=3]
-atlas = ExtResource( 2 )
-region = Rect2( 16, 0, 16, 16 )
-
-[sub_resource type="AtlasTexture" id=4]
-atlas = ExtResource( 2 )
-region = Rect2( 32, 0, 16, 16 )
+[sub_resource type="AtlasTexture" id=8]
+atlas = ExtResource( 4 )
+region = Rect2( 0, 93, 93, 93 )
 
 [sub_resource type="SpriteFrames" id=5]
 animations = [ {
-"frames": [ SubResource( 2 ), SubResource( 3 ), SubResource( 4 ) ],
+"frames": [ SubResource( 8 ) ],
 "loop": true,
 "name": "default",
 "speed": 5.0
 } ]
 
 [sub_resource type="CircleShape2D" id=6]
-radius = 100.0
+radius = 300.0
 
 [node name="Helli" type="KinematicBody2D" groups=["air"]]
 collision_layer = 128
 collision_mask = 0
+input_pickable = true
 script = ExtResource( 3 )
 
 [node name="Sprite" type="Sprite" parent="."]
-texture = ExtResource( 4 )
+texture = ExtResource( 2 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-shape = SubResource( 1 )
+rotation = 1.5708
+shape = SubResource( 7 )
 
 [node name="Muzzle" type="Position2D" parent="."]
 position = Vector2( 8, 0 )
@@ -60,8 +54,17 @@ collision_layer = 0
 collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="DetectRadius"]
+position = Vector2( -1, 0 )
 shape = SubResource( 6 )
 
+[node name="HealthBar" type="ColorRect" parent="."]
+margin_left = -8.0
+margin_top = -8.0
+margin_right = 8.0
+margin_bottom = -7.0
+color = Color( 0, 0, 0, 1 )
+
+[connection signal="input_event" from="." to="." method="_on_Helli_input_event"]
 [connection signal="animation_finished" from="Explosion" to="." method="_on_Explosion_animation_finished"]
 [connection signal="timeout" from="GunTimer" to="." method="_on_GunTimer_timeout"]
 [connection signal="body_entered" from="DetectRadius" to="." method="_on_DetectRadius_body_entered"]

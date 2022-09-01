@@ -1,27 +1,28 @@
 [gd_scene load_steps=5 format=2]
 
-[ext_resource path="res://assets/textures/bullets.png" type="Texture" id=1]
+[ext_resource path="res://assets/actors/missile.png" type="Texture" id=1]
 [ext_resource path="res://bullets/Bullet.tscn" type="PackedScene" id=2]
 [ext_resource path="res://bullets/EnemyMissile.gd" type="Script" id=3]
 
-[sub_resource type="CircleShape2D" id=1]
-radius = 3.0
+[sub_resource type="RectangleShape2D" id=1]
+extents = Vector2( 5.5, 3 )
 
 [node name="EnemyMissile" instance=ExtResource( 2 )]
 collision_layer = 8
 collision_mask = 27
 script = ExtResource( 3 )
-speed = 150
+speed = 300
 damage = 10
 steer_force = 50.0
 
 [node name="Sprite" parent="." index="0"]
 texture = ExtResource( 1 )
-region_enabled = true
-region_rect = Rect2( 11, 0, 6, 5 )
 
 [node name="CollisionShape2D" parent="." index="1"]
 shape = SubResource( 1 )
 
 [node name="LifeTime" parent="." index="2"]
 wait_time = 4.0
+
+[node name="Explosion" parent="." index="3"]
+scale = Vector2( 0.3, 0.3 )

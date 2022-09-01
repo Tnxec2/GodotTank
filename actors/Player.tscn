@@ -1,9 +1,9 @@
-[gd_scene load_steps=11 format=2]
+[gd_scene load_steps=12 format=2]
 
-[ext_resource path="res://assets/textures/player_turret.png" type="Texture" id=1]
+[ext_resource path="res://assets/actors/tankTurret.png" type="Texture" id=1]
 [ext_resource path="res://actors/Tank.tscn" type="PackedScene" id=2]
 [ext_resource path="res://actors/Player.gd" type="Script" id=3]
-[ext_resource path="res://assets/textures/player_body.png" type="Texture" id=4]
+[ext_resource path="res://assets/actors/tankBase.png" type="Texture" id=4]
 [ext_resource path="res://bullets/Bomb.tscn" type="PackedScene" id=5]
 [ext_resource path="res://bullets/PlayerMissile.tscn" type="PackedScene" id=6]
 [ext_resource path="res://bullets/PlayerShot.tscn" type="PackedScene" id=7]
@@ -11,39 +11,43 @@
 [ext_resource path="res://assets/sounds/hitHurt.wav" type="AudioStream" id=9]
 [ext_resource path="res://assets/sounds/pickupCoin.wav" type="AudioStream" id=10]
 
+[sub_resource type="CircleShape2D" id=1]
+radius = 23.0
+
 [node name="Player" instance=ExtResource( 2 )]
 collision_layer = 2
 collision_mask = 117
 script = ExtResource( 3 )
-speed = 30
+speed = 60
 rotation_speed = 1.0
 max_health = 100
 Bomb = ExtResource( 5 )
 Shot = ExtResource( 7 )
 Cannone = ExtResource( 8 )
 Missile = ExtResource( 6 )
-bomb_count = 10
-cannone_count = 30
-missile_count = 15
 
 [node name="Body" parent="." index="0"]
 texture = ExtResource( 4 )
+hframes = 3
 
 [node name="CollisionShape2D" parent="." index="1"]
-position = Vector2( -0.5, 0 )
+shape = SubResource( 1 )
 
 [node name="Turret" parent="." index="3"]
 texture = ExtResource( 1 )
 region_rect = Rect2( 16, 0, 16, 16 )
 
 [node name="Muzzle" parent="Turret" index="0"]
-position = Vector2( 8, 0 )
+position = Vector2( 25, 0 )
 
-[node name="Hit" type="AudioStreamPlayer" parent="." index="5"]
+[node name="Camera2D" type="Camera2D" parent="." index="5"]
+current = true
+
+[node name="HitSound" type="AudioStreamPlayer" parent="Sounds" index="0"]
 stream = ExtResource( 9 )
 
-[node name="PickUp" type="AudioStreamPlayer" parent="." index="6"]
+[node name="PickUpSound" type="AudioStreamPlayer" parent="Sounds" index="1"]
 stream = ExtResource( 10 )
 
-[node name="Camera2D" type="Camera2D" parent="." index="7"]
-current = true
+[node name="BombMuzzle" type="Position2D" parent="." index="7"]
+position = Vector2( -22, 0 )

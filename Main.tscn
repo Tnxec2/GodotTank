@@ -1,37 +1,71 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=8 format=2]
 
 [ext_resource path="res://Main.gd" type="Script" id=1]
 [ext_resource path="res://ui/hud.tscn" type="PackedScene" id=2]
 [ext_resource path="res://ui/gameover.tscn" type="PackedScene" id=3]
 [ext_resource path="res://actors/Player.tscn" type="PackedScene" id=4]
 [ext_resource path="res://map/Map.tscn" type="PackedScene" id=5]
+[ext_resource path="res://ui/Paused.tscn" type="PackedScene" id=6]
+[ext_resource path="res://assets/ui/crack_texture.png" type="Texture" id=7]
 
 [node name="Main" type="Node2D"]
 script = ExtResource( 1 )
 
-[node name="Map" parent="." instance=ExtResource( 5 )]
-
-[node name="Player" parent="Map" instance=ExtResource( 4 )]
-missile_count = 150
+[node name="TextureRect" type="TextureRect" parent="."]
+margin_left = 780.0
+margin_right = 968.0
+margin_bottom = 649.0
+mouse_filter = 2
+texture = ExtResource( 7 )
+stretch_mode = 2
 
 [node name="HUD" parent="." instance=ExtResource( 2 )]
 
-[node name="GameOver" parent="." instance=ExtResource( 3 )]
+[node name="ViewportContainer" type="ViewportContainer" parent="."]
+pause_mode = 2
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_right = 780.0
+margin_bottom = 640.0
+mouse_filter = 2
+input_pass_on_modal_close_click = false
+size_flags_vertical = 3
 
-[connection signal="change_bullet_type" from="Map" to="HUD" method="_on_Map_change_bullet_type"]
-[connection signal="change_count_enemys" from="Map" to="HUD" method="_on_Map_change_count_enemys"]
-[connection signal="game_over" from="Map" to="." method="_on_Map_game_over"]
-[connection signal="change_bomb_count" from="Map/Player" to="HUD" method="_on_Player_change_bomb_count"]
-[connection signal="change_cannon_count" from="Map/Player" to="HUD" method="_on_Player_change_cannon_count"]
-[connection signal="change_missile_count" from="Map/Player" to="HUD" method="_on_Player_change_missile_count"]
-[connection signal="dead" from="Map/Player" to="Map" method="_on_Player_dead"]
-[connection signal="flag_picked" from="Map/Player" to="Map" method="_on_Player_flag_picked"]
-[connection signal="health_changed" from="Map/Player" to="HUD" method="_on_Player_health_changed"]
-[connection signal="set_bomb" from="Map/Player" to="Map" method="_on_Player_set_bomb"]
-[connection signal="shoot" from="Map/Player" to="Map" method="_on_Player_shoot"]
-[connection signal="bomb_pressed" from="HUD" to="Map" method="_on_HUD_bomb_pressed"]
-[connection signal="cannon_pressed" from="HUD" to="Map" method="_on_HUD_cannon_pressed"]
-[connection signal="missile_pressed" from="HUD" to="Map" method="_on_HUD_missile_pressed"]
-[connection signal="shot_pressed" from="HUD" to="Map" method="_on_HUD_shot_pressed"]
-[connection signal="new_game_pressed" from="GameOver" to="." method="_on_GameOver_new_game_pressed"]
-[connection signal="new_game_pressed" from="GameOver" to="Map" method="_on_GameOver_new_game_pressed"]
+[node name="Viewport" type="Viewport" parent="ViewportContainer"]
+pause_mode = 2
+size = Vector2( 780, 640 )
+physics_object_picking = true
+
+[node name="Map" parent="ViewportContainer/Viewport" instance=ExtResource( 5 )]
+pause_mode = 1
+
+[node name="YSort" type="YSort" parent="ViewportContainer/Viewport/Map"]
+
+[node name="Player" parent="ViewportContainer/Viewport/Map/YSort" instance=ExtResource( 4 )]
+
+[node name="GameOver" parent="ViewportContainer/Viewport" instance=ExtResource( 3 )]
+visible = false
+
+[node name="Paused" parent="ViewportContainer/Viewport" instance=ExtResource( 6 )]
+pause_mode = 2
+visible = false
+
+[connection signal="bomb_pressed" from="HUD" to="ViewportContainer/Viewport/Map" method="_on_HUD_bomb_pressed"]
+[connection signal="cannon_pressed" from="HUD" to="ViewportContainer/Viewport/Map" method="_on_HUD_cannon_pressed"]
+[connection signal="missile_pressed" from="HUD" to="ViewportContainer/Viewport/Map" method="_on_HUD_missile_pressed"]
+[connection signal="pause_pressed" from="HUD" to="." method="_on_HUD_pause_pressed"]
+[connection signal="shot_pressed" from="HUD" to="ViewportContainer/Viewport/Map" method="_on_HUD_shot_pressed"]
+[connection signal="change_bullet_type" from="ViewportContainer/Viewport/Map" to="HUD" method="_on_Map_change_bullet_type"]
+[connection signal="change_count_enemys" from="ViewportContainer/Viewport/Map" to="HUD" method="_on_Map_change_count_enemys"]
+[connection signal="game_over" from="ViewportContainer/Viewport/Map" to="." method="_on_Map_game_over"]
+[connection signal="change_bomb_count" from="ViewportContainer/Viewport/Map/YSort/Player" to="HUD" method="_on_Player_change_bomb_count"]
+[connection signal="change_cannon_count" from="ViewportContainer/Viewport/Map/YSort/Player" to="HUD" method="_on_Player_change_cannon_count"]
+[connection signal="change_missile_count" from="ViewportContainer/Viewport/Map/YSort/Player" to="HUD" method="_on_Player_change_missile_count"]
+[connection signal="dead" from="ViewportContainer/Viewport/Map/YSort/Player" to="ViewportContainer/Viewport/Map" method="_on_Player_dead"]
+[connection signal="flag_picked" from="ViewportContainer/Viewport/Map/YSort/Player" to="ViewportContainer/Viewport/Map" method="_on_Player_flag_picked"]
+[connection signal="health_changed" from="ViewportContainer/Viewport/Map/YSort/Player" to="HUD" method="_on_Player_health_changed"]
+[connection signal="set_bomb" from="ViewportContainer/Viewport/Map/YSort/Player" to="ViewportContainer/Viewport/Map" method="_on_Player_set_bomb"]
+[connection signal="shoot" from="ViewportContainer/Viewport/Map/YSort/Player" to="ViewportContainer/Viewport/Map" method="_on_Player_shoot"]
+[connection signal="new_game_pressed" from="ViewportContainer/Viewport/GameOver" to="." method="_on_GameOver_new_game_pressed"]
+[connection signal="new_game_pressed" from="ViewportContainer/Viewport/GameOver" to="ViewportContainer/Viewport/Map" method="_on_GameOver_new_game_pressed"]
+[connection signal="quit" from="ViewportContainer/Viewport/Paused" to="." method="_on_Paused_quit"]

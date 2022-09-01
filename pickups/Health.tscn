@@ -1,10 +1,10 @@
 [gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://pickups/Pickup.tscn" type="PackedScene" id=1]
-[ext_resource path="res://assets/textures/pickup_health.png" type="Texture" id=2]
+[ext_resource path="res://assets/actors/box_health.png" type="Texture" id=2]
 
 [sub_resource type="RectangleShape2D" id=1]
-extents = Vector2( 8, 8 )
+extents = Vector2( 24, 24 )
 
 [node name="Health" instance=ExtResource( 1 )]
 collision_layer = 16

@@ -5,6 +5,7 @@ signal clicked()
 export (float) var turret_speed
 export (int) var detect_radius
 
+
 var turret_target = null
 var player = null
 
@@ -16,6 +17,7 @@ var old_position: Vector2 = Vector2.ZERO
 
 
 func _ready():
+	$HealthBar.hide()
 	var circle = CircleShape2D.new()
 	$DetectRadius/CollisionShape2D.shape = circle
 	$DetectRadius/CollisionShape2D.shape.radius = detect_radius
@@ -63,17 +65,34 @@ func wrap_around_map():
 		global_position.y = limits[3] - 10
 
 
+func control_health():
+	if health > 0:
+		$HealthBar.show()
+		$HealthBar.rect_size.x = 50 * health / max_health
+	else:
+		$HealthBar.hide()
+
+
 func _process(delta):
-	if turret_target:
+	if health < 100:
+		$HealthBar.set_global_position(Vector2(global_position.x-25, global_position.y-30))
+		$HealthBar.set_rotation(-rotation)
+	if turret_target && !G.game_over:
 		var target_dir = (turret_target.global_position - global_position).normalized()
 		var current_dir = Vector2(1, 0).rotated($Turret.global_rotation)
 		$Turret.global_rotation = current_dir.linear_interpolate(target_dir, turret_speed * delta).angle()
 		if target_dir.dot(current_dir) > 0.9:
 			#TODO: activate shoot
 			shoot(gun_shots, gun_spread, turret_target)
+			
 	else:
 		$Turret.global_rotation = global_rotation
-		
+
+
+func release_on_explosion():
+	$DetectRadius/CollisionShape2D.disabled = true
+	$StuckTimer.stop()
+
 
 func _on_DetectRadius_body_entered(body):
 	if body == player:
