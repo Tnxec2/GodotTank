@@ -1,8 +1,8 @@
 extends StaticBody2D
 
-signal clicked
+signal clicked(body)
 signal shoot(bullet, muzzle_position, target_dir)
-signal dead
+signal dead(body)
 
 var bullet = preload("res://bullets/TowerShot.tscn")
 
@@ -11,7 +11,6 @@ onready var gun_timer = $GunTimer
 
 var health
 var turret_target = null
-var player = null
 var start_pause = true
 
 
@@ -27,14 +26,10 @@ func _process(delta: float) -> void:
 		$Turret.look_at(turret_target.global_position)
 
 
-func set_player(p):
-	player = p
-	
-
 func take_damage(damage: int):
 	health -= damage
 	if health <= 0:
-		emit_signal("dead")
+		emit_signal("dead", self)
 		queue_free()
 
 
@@ -47,11 +42,11 @@ func shoot():
 
 func _on_Tower_input_event(viewport, event, shape_idx):
 	if event is InputEventMouseButton:
-		emit_signal("clicked")
+		emit_signal("clicked", self)
 
 
 func _on_DetectRadius_body_entered(body):
-	if body == player:
+	if body == G.player:
 		turret_target = body
 		shoot()
 
@@ -62,9 +57,7 @@ func _on_DetectRadius_body_exited(body):
 
 
 func _on_GunTimer_timeout():
-	if turret_target:
-		var target_dir = (turret_target.global_position - global_position).normalized()
-		shoot()
+	shoot()
 
 
 func _on_StartTimer_timeout() -> void:

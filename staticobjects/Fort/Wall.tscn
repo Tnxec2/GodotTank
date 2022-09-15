@@ -3,7 +3,7 @@
 [sub_resource type="GDScript" id=1]
 script/source = "extends StaticBody2D
 
-signal clicked()
+signal clicked(body)
 
 var health
 
@@ -20,7 +20,7 @@ func take_damage(damage: int):
 
 func _on_Wall_input_event(viewport, event, shape_idx):
 	if event is InputEventMouseButton:
-		emit_signal(\"clicked\")
+		emit_signal(\"clicked\", self)
 "
 
 [node name="Wall" type="StaticBody2D" groups=["walls"]]

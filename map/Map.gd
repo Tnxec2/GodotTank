@@ -66,7 +66,7 @@ func _ready():
 	
 	rand_player_position()
 	
-	spawn_hills()
+	#spawn_hills()
 	spawn_trees()
 	spawn_enemys()
 
@@ -195,8 +195,7 @@ func spawn_fort():
 		for r in fort_areas:
 			if r.intersects(Rect2(x-fort_half_size.x,y-fort_half_size.y,x+fort_half_size.x,y+fort_half_size.y), true):
 				collides = true
-	
-	f.init(player)
+
 	f.connect("shoot", self, "_on_FortTower_shoot")
 	f.connect("clicked", self, "_on_Body_clicked")
 	ysort.add_child(f)
@@ -259,27 +258,28 @@ func game_over(win: bool):
 	emit_signal("game_over", win)
 
 
-func _unhandled_input(event: InputEvent) -> void:
-	if G.game_over:
-		return
-	# Mouse in viewport coordinates.
-	if event is InputEventMouseButton:
-		print("Mouse Click/Unclick at: ", event.position)
-		if event.is_pressed():
-			swipe_position_init = get_global_mouse_position() # get initial position
-		else:
-			swipe_position_release = get_global_mouse_position() # get final position on release of mouse button
-			if swipe_position_release.distance_to(swipe_position_init) > MIN_SWIPE_DISTANCE:
-				swipe_movement_vector = (swipe_position_release - swipe_position_init).normalized()  # obtain the movement vector
-				player.drive_to(swipe_movement_vector)
-			else:
-				if current_bullet_type != 2: # not missile
-					player.shot_to(swipe_position_release, current_bullet_type, null)
-	elif event is InputEventMouseMotion:
-		#print("Mouse Motion at: ", event.position)
-		pass
-	# Print the size of the viewport.
-	#print("Viewport Resolution is: ", get_viewport_rect().size
+#func _unhandled_input(event: InputEvent) -> void:
+#	if G.game_over:
+#		return
+#	# Mouse in viewport coordinates.
+#	if event is InputEventMouseButton:
+#		# print("Mouse Click/Unclick at: ", event.position)
+#
+#		if event.is_pressed():
+#			swipe_position_init = get_global_mouse_position()  # get initial position
+#		else:
+#			swipe_position_release = get_global_mouse_position()  # get final position on release of mouse button
+#			if swipe_position_release.distance_to(swipe_position_init) > MIN_SWIPE_DISTANCE:
+#				swipe_movement_vector = (swipe_position_release - swipe_position_init).normalized()  # obtain the movement vector
+#				player.drive_to(swipe_movement_vector)
+#			else:
+#				if current_bullet_type != 2: # not missile
+#					player.shot_to(swipe_position_release, current_bullet_type, null)
+#	elif event is InputEventMouseMotion:
+#		#print("Mouse Motion at: ", event.position)
+#		pass
+#	# Print the size of the viewport.
+#	#print("Viewport Resolution is: ", get_viewport_rect().size
 
 
 func _on_Body_clicked(body):

@@ -6,8 +6,8 @@ signal cannon_pressed
 signal missile_pressed
 signal pause_pressed
 
-const SELECTED_TINT = Color("aafffe")
-const NORMAL_TINT = Color("ffffff")
+const SELECTED_TINT = Color("8caafffe")
+const NORMAL_TINT = Color("8cffffff")
 
 func _on_VBoxContainer_bomb_pressed():
 	emit_signal("bomb_pressed")
@@ -35,6 +35,7 @@ func _on_Map_change_bullet_type(bulletType):
 	$Buttons/VBoxContainer/Shot.modulate = NORMAL_TINT
 	$Buttons/VBoxContainer/Cannon.modulate = NORMAL_TINT
 	$Buttons/VBoxContainer/Missile.modulate = NORMAL_TINT
+	$Buttons/VBoxContainer/Bomb.modulate = NORMAL_TINT
 	if bulletType == 2:
 		$Buttons/VBoxContainer/Missile.modulate = SELECTED_TINT
 	elif bulletType == 1:

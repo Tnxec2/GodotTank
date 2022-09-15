@@ -71,13 +71,13 @@ func take_damage(amount):
 		explode()
 
 
-func shot_to(position: Vector2, bulletType: int, target: Node2D = null):
+func shot_to(target_vector: Vector2, bulletType: int, target: Node2D = null):
 	if !alive || G.game_over:
 		return
 	turret_rotate_timer = TURRET_ROTATE_BACK_DELAY
-	turret.look_at(position)
-	#var dir = Vector2(1, 0).rotated(turret.global_rotation)
-	var dir = (muzzle.global_position - global_position).normalized()
+	turret.look_at(target_vector)
+	var dir = Vector2(1, 0).rotated(turret.global_rotation)
+	#var dir = (muzzle.global_position - global_position).normalized()
 	match(bulletType):
 		0:
 			emit_signal('shoot', Shot, muzzle.global_position, dir)

@@ -4,115 +4,14 @@ signal shoot
 signal clicked(body)
 signal dead(body)
 
-var tower = preload("res://staticobjects/Fort/Tower.tscn")
-var wall_h = preload("res://staticobjects/Fort/FortWallH.tscn")
-var wall_v = preload("res://staticobjects/Fort/FortWallV.tscn")
-var flag = preload("res://pickups/Flag.tscn")
-
 var located_from_player = false
 
-
-const size_tower = Vector2(48, 48)
-const size_brick = Vector2(30, 30)
-
-var size = Vector2(size_tower.x * 2 + size_brick.x * 3, size_tower.y * 2 + size_brick.y * 2)
+var size = Vector2.ZERO
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	pass
+	size = $SizeMarker.position
 	
-
-func init(player: KinematicBody2D):
-	init_towers(player)
-	init_walls()
-	init_flag()
-
-
-func init_towers(player: KinematicBody2D):
-	var t1 = tower.instance()
-	t1.position = Vector2(0,0)
-	t1.set_player(player)
-	t1.connect("shoot", self, "_on_Tower_shoot")
-	connect_clicked(t1)
-	add_child(t1) 
-	var t2 = tower.instance()
-	t2.position = Vector2(size_tower.x + size_brick.x * 3, 0)
-	t2.set_player(player)
-	t2.connect("shoot", self, "_on_Tower_shoot")
-	connect_clicked(t2)
-	add_child(t2) 
-	var t3 = tower.instance()
-	t3.position = Vector2(0, size_tower.y + size_brick.y * 2)
-	t3.set_player(player)
-	t3.connect("shoot", self, "_on_Tower_shoot")
-	connect_clicked(t3)
-	add_child(t3) 
-	var t4 = tower.instance()
-	t4.position = Vector2(size_tower.x + size_brick.x * 3, size_tower.y + size_brick.y * 2)
-	t4.set_player(player)
-	t4.connect("shoot", self, "_on_Tower_shoot")
-	connect_clicked(t4)
-	add_child(t4) 
-
-
-func init_walls():
-	# Wall Top
-	var w1 = wall_h.instance()
-	w1.position = Vector2(size_tower.x/2+size_brick.x/2, 0) 
-	connect_clicked(w1)
-	add_child(w1)
-	var w2 = wall_h.instance()
-	w2.position = Vector2(size_tower.x/2+size_brick.x/2 + size_brick.x, 0)
-	connect_clicked(w2)
-	add_child(w2)
-	var w3 = wall_h.instance()
-	w3.position = Vector2(size_tower.x/2+size_brick.x/2 + size_brick.x * 2, 0)
-	connect_clicked(w3)
-	add_child(w3)
-	
-	# Wall Bottom
-	var w4 = wall_v.instance()
-	w4.position = Vector2(size_tower.x/2+size_brick.x/2, size_tower.y + size_brick.y * 2) 
-	connect_clicked(w4)
-	add_child(w4)
-	var w5 = wall_h.instance()
-	w5.position = Vector2(size_tower.x/2+size_brick.x/2 + size_brick.x, size_tower.y + size_brick.y * 2)
-	connect_clicked(w5)
-	add_child(w5)
-	var w6 = wall_h.instance()
-	w6.position = Vector2(size_tower.x/2+size_brick.x/2 + size_brick.x * 2, size_tower.y + size_brick.y * 2)
-	connect_clicked(w6)
-	add_child(w6)
-	
-	# Wall Left
-	var w7 = wall_v.instance()
-	w7.position = Vector2(0, size_tower.y/2 + size_brick.y / 2) 
-	connect_clicked(w7)
-	add_child(w7)
-	var w8 = wall_h.instance()
-	w8.position = Vector2(0, size_tower.y/2 + size_brick.y / 2 + size_brick.y)
-	connect_clicked(w8)
-	add_child(w8)
-
-	# Wall Right
-	var w9 = wall_v.instance()
-	w9.position = Vector2(size_tower.x + size_brick.x * 3, size_tower.y/2 + size_brick.y / 2) 
-	connect_clicked(w9)
-	add_child(w9)
-	var w10 = wall_h.instance()
-	w10.position = Vector2(size_tower.x + size_brick.x * 3, size_tower.y/2 + size_brick.y / 2 + size_brick.y)
-	connect_clicked(w10)
-	add_child(w10)
-
-func init_flag():
-	var f = flag.instance()
-	f.position = Vector2(size.x/2 - size_tower.x/2, size.y/2 - size_tower.y/2)
-	add_child(f)
-
-func connect_clicked(body):
-	body.connect("clicked", self, "_on_Body_clicked", [body])
-	body.connect("dead", self, "body_dead", [body])
-
 
 func body_dead(body):
 	emit_signal("dead", body)
@@ -133,4 +32,5 @@ func _on_VisibilityNotifier2D_screen_entered():
 	array.append(global_position + size / 2)
 	G.located_forts = array
 	located_from_player = true
+
 

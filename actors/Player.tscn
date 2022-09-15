@@ -42,6 +42,7 @@ position = Vector2( 25, 0 )
 
 [node name="Camera2D" type="Camera2D" parent="." index="5"]
 current = true
+limit_smoothed = true
 
 [node name="HitSound" type="AudioStreamPlayer" parent="Sounds" index="0"]
 stream = ExtResource( 9 )
